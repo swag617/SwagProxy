@@ -19,7 +19,7 @@ another proxy.
 
 ---
 
-![SwagProxy architecture](docs/swagproxy-architecture.svg)
+![SwagProxy architecture](swagproxy-architecture.svg)
 
 ---
 
