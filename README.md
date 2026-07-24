@@ -19,6 +19,10 @@ another proxy.
 
 ---
 
+![SwagProxy architecture](docs/swagproxy-architecture.svg)
+
+---
+
 ## Quick start
 
 ```
