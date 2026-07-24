@@ -11,6 +11,12 @@ target/
 /data/
 /swagproxy.yml
 
+### Internal build-process docs (not part of the public project) ###
+/Gameplan/
+/DECISIONS.md
+/HANDOFF_REPORT.md
+/TEST_CHECKLIST.md
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws

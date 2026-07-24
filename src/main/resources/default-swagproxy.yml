@@ -18,7 +18,7 @@ bedrock-port: 19132
 bind: 0.0.0.0
 
 # MiniMessage-formatted MOTD shown in the multiplayer server list.
-motd: "<gradient:#00c2ff:#7b2ff7>Swag Network</gradient>"
+motd: "<gradient:#00c2ff:#7b2ff7>A SwagProxy Server</gradient>"
 max-players: 100
 # Whether Java clients must be logged into a valid premium Mojang
 # account. Bedrock/Floodgate players authenticate via Xbox regardless
@@ -26,9 +26,9 @@ max-players: 100
 online-mode: true
 
 # --- Backend servers ---
-# name -> host:port. Your hub server (e.g. SwagHub) handles routing
-# players between these once they've connected; SwagProxy just needs
-# to know how to reach each one.
+# name -> host:port. Your hub/lobby server handles routing players
+# between these once they've connected; SwagProxy just needs to know
+# how to reach each one.
 servers:
   hub: 127.0.0.1:30001
 

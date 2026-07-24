@@ -1,7 +1,7 @@
 # SwagProxy
 
 A self-updating, self-restarting dual-protocol (Java + Bedrock) proxy
-launcher for the Swag Network.
+launcher for any Minecraft network.
 
 SwagProxy is a **standalone Java application** — not a Bukkit plugin, not a
 Velocity plugin, not a new proxy implementation. It downloads and boots
@@ -13,8 +13,9 @@ crashes or bad updates.
 
 There is exactly **one proxy**. Players connect to SwagProxy — Java over TCP,
 Bedrock over UDP — and stay connected to it for their whole session; moving
-between backend servers (e.g. via SwagHub) just repoints the existing
-connection. Never chain SwagProxy behind or in front of another proxy.
+between backend servers (e.g. via your own hub/lobby plugin) just repoints
+the existing connection. Never chain SwagProxy behind or in front of
+another proxy.
 
 ---
 
@@ -232,7 +233,7 @@ SwagProxy:
 - **Remove Geyser-Spigot from every backend.** Geyser must live only on the
   proxy — a copy on a backend is a routing/auth bypass hole.
 - **Keep/install Floodgate-Spigot** on any backend that needs the Floodgate
-  API (e.g. SwagHub), and **copy the proxy's Floodgate `key.pem`** to every
+  API (e.g. your hub server), and **copy the proxy's Floodgate `key.pem`** to every
   backend's Floodgate folder, replacing whatever key was there before — all
   instances must share one key or Bedrock players get rejected at the
   backend hop. **Never distribute this key outside your own network.**
@@ -271,8 +272,7 @@ SwagProxy:
 2. Bedrock: Geyser translates the session continuously (not just at login);
    Floodgate authenticates via Xbox (`.`-prefixed username, no Java account
    needed). Java clients pass straight through — Geyser never touches them.
-3. Both land on the `try-order[0]` backend (typically your hub, e.g.
-   SwagHub).
+3. Both land on the `try-order[0]` backend (typically your hub server).
 4. The hub's `bungeecord:main` `Connect` plugin messages come back to this
    same Velocity instance, which repoints the player at the target backend.
    Velocity answers that channel natively — SwagProxy needs no code for it.
