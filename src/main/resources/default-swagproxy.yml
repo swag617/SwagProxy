@@ -1,0 +1,145 @@
+# ===================================================================
+#  SwagProxy configuration — the ONLY file you should hand-edit.
+#
+#  velocity.toml and the Geyser config.yml under proxy/plugins/ are
+#  generated and partially managed by SwagProxy itself (see README.md,
+#  "Config generation rules"). Hand edits to SwagProxy-owned keys in
+#  those files will be overwritten on the next boot/restart — change
+#  those settings here instead.
+# ===================================================================
+
+# --- Network ---
+java-port: 25565
+bedrock-port: 19132
+# Address to bind to. 0.0.0.0 is Velocity's own default and is fine for
+# a public-facing proxy. Restrict this to a specific interface (e.g. a
+# VPN or LAN IP) if this proxy should NOT be reachable from the open
+# internet.
+bind: 0.0.0.0
+
+# MiniMessage-formatted MOTD shown in the multiplayer server list.
+motd: "<gradient:#00c2ff:#7b2ff7>Swag Network</gradient>"
+max-players: 100
+# Whether Java clients must be logged into a valid premium Mojang
+# account. Bedrock/Floodgate players authenticate via Xbox regardless
+# of this setting and are not affected by it.
+online-mode: true
+
+# --- Backend servers ---
+# name -> host:port. Your hub server (e.g. SwagHub) handles routing
+# players between these once they've connected; SwagProxy just needs
+# to know how to reach each one.
+servers:
+  hub: 127.0.0.1:30001
+
+# Order backends are tried in when a player first connects. The first
+# entry is where every player (Java and Bedrock) initially lands.
+try-order:
+  - hub
+
+# Player-info forwarding to backend servers. "modern" (Velocity's own
+# forwarding protocol) is the only mode SwagProxy manages; it generates
+# and maintains a forwarding.secret file for you automatically. Paste
+# that file's contents into every backend's paper-global.yml — see
+# README.md "Backend migration checklist" for the full walkthrough.
+forwarding: modern
+
+# --- Auto-updates ---
+# SwagProxy polls each component's official download API on a timer,
+# stages any newer build it finds, and only swaps staged jars in during
+# a scheduled/manual restart (see restart-schedule below) — it never
+# hot-swaps a jar while the proxy is running.
+updates:
+  velocity:
+    auto: true
+    # stable | experimental — which Velocity build channel(s) to track.
+    # PaperMC's Fill API tags every build with a channel: RECOMMENDED,
+    # STABLE, BETA, or ALPHA (RECOMMENDED replaces the old "promoted"
+    # flag). SwagProxy walks versions newest-to-oldest and, for each
+    # version, picks the best channel THAT VERSION has — NOT by version
+    # number alone and NOT by looking for "-SNAPSHOT" in the name:
+    #   stable:       that version's STABLE build, else its RECOMMENDED
+    #   experimental: STABLE, else RECOMMENDED, else BETA, else ALPHA
+    # The newest version wins as long as it has a build in an allowed
+    # tier — RECOMMENDED is no longer preferred globally over a newer
+    # version's STABLE build. (Rationale: GeyserMC tracks new Minecraft/
+    # Velocity versions aggressively due to Bedrock force-updates, while
+    # PaperMC's RECOMMENDED flag is deliberately conservative and can lag
+    # behind — for a Geyser-first proxy, staying current matters more.)
+    # Stable is recommended for production networks.
+    channel: stable
+    # Emergency override: pin to an exact version (e.g. "4.0.0") or
+    # "version-buildid" (e.g. "4.0.0-6"), bypassing channel selection
+    # entirely. Use this if the current best combination of Velocity/
+    # Geyser/Floodgate builds doesn't work together and you need to lock
+    # in a known-good version while upstream sorts it out. Unset (the
+    # default) means "select normally." Commented out by default:
+    # pin: "4.0.0"
+  geyser:
+    auto: true
+    # Same emergency override as updates.velocity.pin, e.g. "2.11.0".
+    # pin: "2.11.0"
+  floodgate:
+    auto: true
+    # Same emergency override as updates.velocity.pin, e.g. "2.2.5".
+    # pin: "2.2.5"
+  # How often (minutes) to poll the download APIs for new builds.
+  check-interval-minutes: 60
+  # on-restart is the only supported mode in v1 — staged updates are
+  # always applied at the next restart, never hot-swapped into a live
+  # process.
+  apply: on-restart
+  # PaperMC's download API requires a non-generic User-Agent that
+  # identifies who's calling and how to reach you (their API policy
+  # blocks default Java/curl-style User-Agents). SwagProxy sends
+  # "SwagProxy/<version> (<contact>)" on every request it makes — set
+  # this to your own URL or email so PaperMC (or GeyserMC) can reach you
+  # if something about your usage needs attention. The placeholder below
+  # is sent as-is if you don't change it, which is better than a generic
+  # UA but not as good as your own contact info.
+  contact: "https://github.com/SwagDev"
+
+# --- Restart schedule ---
+# Each entry restarts the proxy at "time" (24-hour "HH:mm") in
+# "timezone" (any java.time.ZoneId — e.g. America/New_York, UTC,
+# Europe/London; do NOT assume this machine's local timezone) on the
+# listed days.
+restart-schedule:
+  - time: "04:30"
+    timezone: "America/New_York"
+    days: [MON, TUE, WED, THU, FRI, SAT, SUN]
+
+# Seconds-before-restart at which a warning is broadcast to all
+# connected players, applied to every schedule entry above.
+warnings: [600, 300, 60, 10]
+# MiniMessage template for each warning broadcast. {time} is replaced
+# with a human-readable countdown, e.g. "10 minutes" or "30 seconds".
+warning-message: "<yellow>Proxy restarting in <white>{time}</white>!</yellow>"
+# MiniMessage broadcast sent at the moment the restart begins.
+restart-message: "<red>Restarting now, back in a moment!</red>"
+# Console command SwagProxy runs (via Velocity's stdin) at each warning
+# offset above, with {message} replaced by warning-message. Vanilla
+# Velocity has NO built-in broadcast/alert command (only /velocity,
+# /server, /glist, /send, /shutdown) — this assumes you've dropped a
+# small broadcast-capable plugin into proxy/plugins/ (several free
+# "/alert" plugins exist; install one like any other plugin). If none
+# is installed the command just logs "unknown command" in Velocity's
+# own log and is otherwise harmless — SwagProxy always logs every
+# warning to its own console/log regardless. See README.md.
+warning-command-template: "alert {message}"
+
+# --- Supervisor ---
+supervisor:
+  # Automatically relaunch Velocity if it exits with a nonzero code.
+  restart-on-crash: true
+  # Consecutive crashes within a 10-minute window before SwagProxy
+  # gives up relaunching and stops, printing a diagnostic instead.
+  crash-loop-threshold: 3
+  # If Velocity crashes (or crash-loops) within this many seconds of a
+  # staged update being applied, SwagProxy automatically rolls back to
+  # the previous jars, marks the bad build as skipped, and relaunches.
+  rollback-window-seconds: 120
+  # Extra JVM arguments used when launching Velocity, e.g. heap sizing.
+  jvm-args:
+    - "-Xms512M"
+    - "-Xmx2G"
