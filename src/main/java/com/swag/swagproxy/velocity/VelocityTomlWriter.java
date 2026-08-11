@@ -65,7 +65,7 @@ public final class VelocityTomlWriter {
         sb.append("forwarding-secret-file = \"forwarding.secret\"\n\n");
         sb.append("announce-forge = false\n");
         sb.append("kick-existing-players = false\n");
-        sb.append("ping-passthrough = \"DISABLED\"\n");
+        sb.append("ping-passthrough = \"").append(config.pingPassthrough().toUpperCase()).append("\"\n");
         sb.append("sample-players-in-ping = false\n");
         sb.append("enable-player-address-logging = true\n\n");
 

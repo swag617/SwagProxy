@@ -10,6 +10,7 @@ public final class SwagProxyConfig {
     private final int bedrockPort;
     private final String bind;
     private final String motd;
+    private final String pingPassthrough;
     private final int maxPlayers;
     private final boolean onlineMode;
     private final Map<String, String> servers;
@@ -23,7 +24,8 @@ public final class SwagProxyConfig {
     private final String warningCommandTemplate;
     private final SupervisorConfig supervisor;
 
-    public SwagProxyConfig(int javaPort, int bedrockPort, String bind, String motd, int maxPlayers,
+    public SwagProxyConfig(int javaPort, int bedrockPort, String bind, String motd, String pingPassthrough,
+                            int maxPlayers,
                             boolean onlineMode, Map<String, String> servers, List<String> tryOrder,
                             String forwarding, UpdatesConfig updates, List<RestartEntry> restartSchedule,
                             List<Integer> warnings, String warningMessage, String restartMessage,
@@ -32,6 +34,7 @@ public final class SwagProxyConfig {
         this.bedrockPort = bedrockPort;
         this.bind = bind;
         this.motd = motd;
+        this.pingPassthrough = pingPassthrough;
         this.maxPlayers = maxPlayers;
         this.onlineMode = onlineMode;
         this.servers = servers;
@@ -60,6 +63,10 @@ public final class SwagProxyConfig {
 
     public String motd() {
         return motd;
+    }
+
+    public String pingPassthrough() {
+        return pingPassthrough;
     }
 
     public int maxPlayers() {

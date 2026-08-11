@@ -84,6 +84,12 @@ public final class ConfigManager {
         int bedrockPort = intVal(root, "bedrock-port", 19132);
         String bind = stringVal(root, "bind", "0.0.0.0");
         String motd = stringVal(root, "motd", "A SwagProxy Server");
+        String pingPassthrough = stringVal(root, "ping-passthrough", "all");
+        if (!pingPassthrough.equalsIgnoreCase("all")
+                && !pingPassthrough.equalsIgnoreCase("description")
+                && !pingPassthrough.equalsIgnoreCase("disabled")) {
+            errors.add("'ping-passthrough' must be \"all\", \"description\", or \"disabled\", found: " + pingPassthrough);
+        }
         int maxPlayers = intVal(root, "max-players", 100);
         boolean onlineMode = boolVal(root, "online-mode", true);
         Map<String, String> servers = stringMapVal(root, "servers");
@@ -107,8 +113,8 @@ public final class ConfigManager {
         String warningCommandTemplate = stringVal(root, "warning-command-template", "alert {message}");
         SupervisorConfig supervisor = parseSupervisor(root.get("supervisor"));
 
-        return new SwagProxyConfig(javaPort, bedrockPort, bind, motd, maxPlayers, onlineMode, servers, tryOrder,
-                forwarding, updates, restartSchedule, warnings, warningMessage, restartMessage,
+        return new SwagProxyConfig(javaPort, bedrockPort, bind, motd, pingPassthrough, maxPlayers, onlineMode,
+                servers, tryOrder, forwarding, updates, restartSchedule, warnings, warningMessage, restartMessage,
                 warningCommandTemplate, supervisor);
     }
 

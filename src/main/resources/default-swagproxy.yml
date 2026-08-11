@@ -17,8 +17,20 @@ bedrock-port: 19132
 # internet.
 bind: 0.0.0.0
 
-# MiniMessage-formatted MOTD shown in the multiplayer server list.
+# MiniMessage-formatted MOTD shown in the multiplayer server list when
+# ping-passthrough (below) is "disabled", or as a fallback if the backend
+# can't be reached to pass through from.
 motd: "<gradient:#00c2ff:#7b2ff7>A SwagProxy Server</gradient>"
+# Whether the multiplayer server-list ping (MOTD, server icon, and online
+# player sample shown before connecting) reflects your actual backend
+# server's live values, or always shows the static "motd" above with no
+# icon. Passes through from whichever server in 'try-order' answers first
+# (normally your hub) — so your hub's own configured MOTD/icon is what
+# players see, not a generic proxy default. One of:
+#   all         - inherit MOTD, icon, AND the online player sample (recommended)
+#   description - inherit MOTD and icon only, not the player sample
+#   disabled    - always show the static "motd" above, never query the backend
+ping-passthrough: all
 max-players: 100
 # Whether Java clients must be logged into a valid premium Mojang
 # account. Bedrock/Floodgate players authenticate via Xbox regardless
