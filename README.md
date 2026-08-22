@@ -17,6 +17,8 @@ between backend servers (e.g. via your own hub/lobby plugin) just repoints
 the existing connection. Never chain SwagProxy behind or in front of
 another proxy.
 
+> **Full documentation:** https://swag617.github.io/SwagProxy/
+
 ---
 
 ![SwagProxy architecture](swagproxy-architecture.svg)
