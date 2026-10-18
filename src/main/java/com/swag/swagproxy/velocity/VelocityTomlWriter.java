@@ -16,6 +16,16 @@ import java.util.Map;
  * Schema verified live 2026-07-22 against PaperMC/Velocity's
  * default-velocity.toml on the dev/3.0.0 branch (config-version "2.8") — see
  * DECISIONS.md.
+ * <p>
+ * Re-verified 2026-10-17 against a live Velocity 4.2.1-SNAPSHOT install, which
+ * auto-migrated its own config-version to "2.9": that version replaced the old
+ * single `ping-passthrough = "ALL"/"DESCRIPTION"/"DISABLED"` scalar with a
+ * `[ping-passthrough]` table of five independent booleans (version/players/
+ * description/favicon/modinfo). Writing the old scalar key on a 2.9+ install
+ * is silently ignored by Velocity — it fills the new table in with its own
+ * all-true defaults instead, which is why a "description" setting in
+ * swagproxy.yml never actually stopped player-count passthrough. See
+ * {@link #mapPingPassthroughTable(String, StringBuilder)}.
  */
 public final class VelocityTomlWriter {
 
@@ -45,7 +55,7 @@ public final class VelocityTomlWriter {
     private static String render(SwagProxyConfig config) {
         StringBuilder sb = new StringBuilder();
         sb.append(MANAGED_BANNER).append('\n');
-        sb.append("config-version = \"2.8\"\n\n");
+        sb.append("config-version = \"2.9\"\n\n");
         sb.append("bind = \"").append(config.bind()).append(':').append(config.javaPort()).append("\"\n\n");
         sb.append("motd = \"").append(escapeToml(config.motd())).append("\"\n\n");
         sb.append("show-max-players = ").append(config.maxPlayers()).append("\n\n");
@@ -65,9 +75,10 @@ public final class VelocityTomlWriter {
         sb.append("forwarding-secret-file = \"forwarding.secret\"\n\n");
         sb.append("announce-forge = false\n");
         sb.append("kick-existing-players = false\n");
-        sb.append("ping-passthrough = \"").append(config.pingPassthrough().toUpperCase()).append("\"\n");
         sb.append("sample-players-in-ping = false\n");
         sb.append("enable-player-address-logging = true\n\n");
+
+        mapPingPassthroughTable(config.pingPassthrough(), sb);
 
         sb.append("[packet-limiter]\n");
         sb.append("interval = 7\n");
@@ -121,6 +132,31 @@ public final class VelocityTomlWriter {
         sb.append("show-plugins = false\n");
 
         return sb.toString();
+    }
+
+    /**
+     * Translates SwagProxy's three simple ping-passthrough modes ("all", "description",
+     * "disabled" — validated in ConfigManager) into Velocity 2.9+'s per-field
+     * {@code [ping-passthrough]} table, preserving the original mode's intent:
+     * <ul>
+     *   <li>"all" — passthrough everything (old ALL)</li>
+     *   <li>"description" — passthrough everything except the player count, so Velocity
+     *       computes and shows the real aggregate count across every backend instead of
+     *       whatever one server happens to answer the ping (old DESCRIPTION)</li>
+     *   <li>"disabled" — passthrough nothing; Velocity's own computed/default values only
+     *       (old DISABLED)</li>
+     * </ul>
+     */
+    private static void mapPingPassthroughTable(String pingPassthrough, StringBuilder sb) {
+        boolean players = pingPassthrough.equalsIgnoreCase("all");
+        boolean others = !pingPassthrough.equalsIgnoreCase("disabled");
+
+        sb.append("[ping-passthrough]\n");
+        sb.append("version = ").append(others).append('\n');
+        sb.append("players = ").append(players).append('\n');
+        sb.append("description = ").append(others).append('\n');
+        sb.append("favicon = ").append(others).append('\n');
+        sb.append("modinfo = ").append(others).append("\n\n");
     }
 
     private static String mapForwardingMode(String forwarding) {
